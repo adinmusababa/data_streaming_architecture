@@ -1,0 +1,47 @@
+{
+  "total": 8,
+  "failed": 0,
+  "passed": 8,
+  "results": [
+    {
+      "name": "import_fastapi",
+      "ok": true,
+      "detail": "fastapi import ok"
+    },
+    {
+      "name": "import_sqlalchemy",
+      "ok": true,
+      "detail": "sqlalchemy import ok"
+    },
+    {
+      "name": "import_app",
+      "ok": true,
+      "detail": "app title=ASLP Configuration Service"
+    },
+    {
+      "name": "GET /api/v1/health",
+      "ok": true,
+      "detail": "{\"status_code\": 200, \"body\": {\"service\": \"configuration-service\", \"status\": \"running\", \"version\": \"1.0.0\", \"database\": \"connected\", \"uptime_seconds\": 0.0}}"
+    },
+    {
+      "name": "GET /api/v1/status",
+      "ok": true,
+      "detail": "{\"status_code\": 200, \"body\": {\"service\": \"configuration-service\", \"status\": \"running\", \"version\": \"1.0.0\", \"uptime_seconds\": 0.0, \"total_configs\": 8, \"cached_configs\": 8, \"database_status\": \"connected\", \"last_reload_at\": \"2026-07-23T11:03:23.981330\"}}"
+    },
+    {
+      "name": "GET /api/v1/config",
+      "ok": true,
+      "detail": "{\"status_code\": 200, \"body\": {\"items\": [{\"service_name\": \"configuration-service\", \"config_data\": {\"service_host\": \"0.0.0.0\", \"service_port\": 8001, \"log_level\": \"INFO\"}, \"version\": 1, \"description\": \"Default configuration\", \"created_at\": \"2026-07-23T11:00:02.830714\", \"updated_at\": \"2026-07-23T11:00:02.830714\"}, {\"service_name\": \"message-broker\", \"config_data\": {\"host\": \"localhost\", \"port\": 5672, \"username\": \"guest\", \"password\": \"guest\", \"exchange\": \"stream_exchange\", \"queue\": \"stream_queue\", \"routing_key\": \"stream.data\", \"prefetch_count\": 100}, \"version\": 1, \"description\": \"Default configuration\", \"created_at\": \"2026-07-23T11:00:02.836470\", \"updated_at\": \"2026-07-23T11:00:02.836470\"}, {\"service_name\": \"monitoring-dashboard\", \"config_data\": {\"refresh_interval\": 5}, \"version\": 1, \"description\": \"Default configuration\", \"created_at\": \"2026-07-23T11:00:02.842926\", \"updated_at\": \"2026-07-23T11:00:02.842926\"}, {\"service_name\": \"online-ml-engine\", \"config_data\": {\"model_name\": \"river_hoeffding_tree\", \"learning_rate\": 0.01, \"batch_size\": 1, \"state_interval\": 500, \"evaluation_interval\": 100}, \"version\": 1, \"description\": \"Default configuration\", \"created_at\": \"2026-07-23T11:00:02.837457\", \"updated_at\": \"2026-07-23T11:00:02.837457\"}, {\"service_name\": \"state-store\", \"config_data\": {\"storage_provider\": \"sqlite\", \"auto_save\": true, \"save_interval\": 300, \"max_versions\": 10}, \"version\": 1, \"description\": \"Default configuration\", \"created_at\": \"2026-07-23T11:00:02.838907\", \"updated_at\": \"2026-07-23T11:00:02.838907\"}, {\"service_name\": \"storage-layer\", \"config_data\": {\"provider\": \"sqlite\", \"timeout\": 30, \"retry\": 3, \"max_connections\": 20}, \"version\": 1, \"description\": \"Default configuration\", \"created_at\": \"2026-07-23T11:00:02.840921\", \"updated_at\": \"2026-07-23T11:00:02.840921\"}, {\"service_name\": \"streaming-preprocessing-service\", \"config_data\": {\"source_type\": \"csv\", \"batch_size\": 100, \"polling_interval\": 1.0, \"preprocessing_pipeline\": [\"validation\", \"cleaning\", \"transformation\"], \"publish_topic\": \"stream_data\", \"retry_count\": 3}, \"version\": 1, \"description\": \"Default configuration\", \"created_at\": \"2026-07-23T11:00:02.834292\", \"updated_at\": \"2026-07-23T11:00:02.834292\"}, {\"service_name\": \"test-service\", \"config_data\": {\"enabled\": true, \"timeout\": 10}, \"version\": 3, \"description\": \"Smoke test configuration\", \"created_at\": \"2026-07-23T11:00:02.875988\", \"updated_at\": \"2026-07-23T11:02:30.030133\"}], \"total\": 8}}"
+    },
+    {
+      "name": "PUT /api/v1/config",
+      "ok": true,
+      "detail": "{\"status_code\": 200, \"body\": {\"service_name\": \"test-service\", \"config_data\": {\"enabled\": true, \"timeout\": 10}, \"version\": 4, \"description\": \"Smoke test configuration\", \"created_at\": \"2026-07-23T11:00:02.875988\", \"updated_at\": \"2026-07-23T11:03:23.992125\"}}"
+    },
+    {
+      "name": "POST /api/v1/config/reload",
+      "ok": true,
+      "detail": "{\"status_code\": 200, \"body\": {\"reloaded\": true, \"service_name\": null, \"total_loaded\": 8, \"message\": \"All configurations reloaded successfully.\"}}"
+    }
+  ]
+}

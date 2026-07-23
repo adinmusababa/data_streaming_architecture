@@ -1,0 +1,7 @@
+version: '3.9'
+
+services:
+  # Foundation-only compose file. Service containers will be added in later milestones.
+  placeholder:
+    image: python:3.11-slim
+    command: ["python", "-c", "print('ASLP docker compose foundation')"]
