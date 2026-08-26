@@ -1,0 +1,33 @@
+{
+  "milestone": 3,
+  "service": "streaming-preprocessing-service",
+  "timestamp": "2026-07-24T09:34:31Z",
+  "total": 23,
+  "passed": 23,
+  "failed": 0,
+  "tests": [
+    {"name": "import_csv_reader", "ok": true, "detail": "CsvReader imported ok"},
+    {"name": "import_broker_publisher", "ok": true, "detail": "BrokerPublisher imported ok"},
+    {"name": "import_streaming_service", "ok": true, "detail": "StreamingOrchestrator imported ok"},
+    {"name": "import_streaming_schemas", "ok": true, "detail": "Streaming schemas imported ok"},
+    {"name": "import_app", "ok": true, "detail": "app title=ASLP Streaming Preprocessing Service"},
+    {"name": "route_/health", "ok": true, "detail": "/health registered in OpenAPI"},
+    {"name": "route_/status", "ok": true, "detail": "/status registered in OpenAPI"},
+    {"name": "route_/bootstrap", "ok": true, "detail": "/bootstrap registered in OpenAPI"},
+    {"name": "route_/config/reload", "ok": true, "detail": "/config/reload registered in OpenAPI"},
+    {"name": "route_/stream/start", "ok": true, "detail": "/stream/start registered in OpenAPI"},
+    {"name": "route_/stream/stop", "ok": true, "detail": "/stream/stop registered in OpenAPI"},
+    {"name": "route_/stream/status", "ok": true, "detail": "/stream/status registered in OpenAPI"},
+    {"name": "route_/statistics", "ok": true, "detail": "/statistics registered in OpenAPI"},
+    {"name": "GET /health", "ok": true, "detail": "HTTP 200"},
+    {"name": "GET /status", "ok": true, "detail": "HTTP 200"},
+    {"name": "GET /bootstrap", "ok": true, "detail": "HTTP 200"},
+    {"name": "POST /stream/start", "ok": true, "detail": "HTTP 200, is_running=true"},
+    {"name": "GET /stream/status", "ok": true, "detail": "HTTP 200"},
+    {"name": "GET /statistics", "ok": true, "detail": "HTTP 200, total_batches=1"},
+    {"name": "POST /stream/stop", "ok": true, "detail": "HTTP 200, success=true"},
+    {"name": "csv_reader_basic", "ok": true, "detail": "columns=6, estimated=15 rows"},
+    {"name": "csv_reader_batch", "ok": true, "detail": "batch_size=5, got 5 rows"},
+    {"name": "stream_message_build", "ok": true, "detail": "StreamMessage built correctly"}
+  ]
+}

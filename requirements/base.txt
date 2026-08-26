@@ -1,0 +1,18 @@
+# Base dependencies for streaming-platform foundation
+
+# Shared SDK runtime
+pydantic>=2.0
+pydantic-settings>=2.0
+httpx>=0.25
+python-dotenv>=1.0
+
+# Core async / web
+fastapi>=0.110
+uvicorn[standard]>=0.29
+sqlalchemy>=2.0
+aiosqlite>=0.20
+asyncpg>=0.29
+
+# Utilities
+orjson>=3.9
+python-json-logger>=2.0

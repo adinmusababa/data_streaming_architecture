@@ -1,0 +1,78 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aslp-shared-sdk"
+version = "0.1.0"
+description = "Shared SDK for Adaptive Stream Learning Platform (ASLP)"
+readme = "README.md"
+authors = [{name = "ASLP Team"}]
+license = {text = "MIT"}
+requires-python = ">=3.11"
+dependencies = [
+    "pydantic>=2.0",
+    "httpx>=0.25",
+    "pydantic-settings>=2.0",
+    "python-json-logger>=2.0",
+    "tenacity>=8.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-asyncio>=0.21",
+    "pytest-cov>=4.0",
+    "black>=23.0",
+    "ruff>=0.1",
+    "mypy>=1.0",
+    "pre-commit>=3.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/aslp/streaming-platform"
+Repository = "https://github.com/aslp/streaming-platform"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["shared_sdk*"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+select = [
+    "E", "F", "I", "N", "W",
+    "UP", "B", "C4", "SIM", "TID", "ARG", "PTH", "ERA", "PL", "TRY"
+]
+ignore = [
+    "E501",  # line too long
+    "S101",  # assert
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+include = '\.pyi?$'
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+ignore_missing_imports = true
+
+[tool.coverage.run]
+source = ["shared_sdk"]
+omit = ["*/tests/*", "*/__pycache__/*"]
