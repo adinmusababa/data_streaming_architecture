@@ -1,80 +1,80 @@
 {
   "milestone": 4,
-  "date": "2026-08-24T16:06:03.245467+00:00",
-  "passed": 10,
-  "failed": 2,
+  "date": "2026-08-26T06:38:50.132001+00:00",
+  "passed": 12,
+  "failed": 0,
   "results": [
     {
       "name": "import_kafka_backend",
       "ok": true,
       "detail": "topic_for('stream_exchange','stream_data')=stream_exchange__stream_data",
-      "timestamp": "2026-08-24T16:05:29.850218+00:00"
+      "timestamp": "2026-08-26T06:38:41.187186+00:00"
     },
     {
       "name": "import_broker_service",
       "ok": true,
       "detail": "BrokerConfigService imported ok",
-      "timestamp": "2026-08-24T16:05:29.931437+00:00"
+      "timestamp": "2026-08-26T06:38:41.271624+00:00"
     },
     {
       "name": "import_broker_schemas",
       "ok": true,
       "detail": "Broker schemas imported ok",
-      "timestamp": "2026-08-24T16:05:29.940549+00:00"
+      "timestamp": "2026-08-26T06:38:41.287059+00:00"
     },
     {
       "name": "import_app",
       "ok": true,
       "detail": "app title=ASLP Message Broker Service",
-      "timestamp": "2026-08-24T16:05:30.311327+00:00"
+      "timestamp": "2026-08-26T06:38:41.759355+00:00"
     },
     {
       "name": "routes_registered",
-      "ok": false,
-      "detail": "missing: ['/api/v1/consume', '/api/v1/exchange/{exchange_name}', '/api/v1/publish', '/api/v1/queue/{queue_name}', '/config/reload', '/connections', '/health', '/statistics', '/status']",
-      "timestamp": "2026-08-24T16:05:30.311327+00:00"
+      "ok": true,
+      "detail": "9 required paths present",
+      "timestamp": "2026-08-26T06:38:41.828034+00:00"
     },
     {
       "name": "health_endpoint",
       "ok": true,
       "detail": "status=200 kafka=connected",
-      "timestamp": "2026-08-24T16:05:31.053045+00:00"
+      "timestamp": "2026-08-26T06:38:42.269092+00:00"
     },
     {
       "name": "status_endpoint",
       "ok": true,
-      "detail": "published=0 consumed=0",
-      "timestamp": "2026-08-24T16:05:31.065411+00:00"
+      "detail": "published=3 consumed=2",
+      "timestamp": "2026-08-26T06:38:42.278113+00:00"
     },
     {
       "name": "publish_rest_contract",
       "ok": true,
-      "detail": "queue=stream_exchange__smoke_m4 offset=1",
-      "timestamp": "2026-08-24T16:05:31.140922+00:00"
+      "detail": "queue=stream_exchange__smoke_m4 offset=3",
+      "timestamp": "2026-08-26T06:38:42.312047+00:00"
     },
     {
       "name": "consume_returns_message",
-      "ok": false,
-      "detail": "ReadTimeout('')",
-      "timestamp": "2026-08-24T16:06:02.184435+00:00"
+      "ok": true,
+      "detail": "count=4 match=True",
+      "timestamp": "2026-08-26T06:38:49.546402+00:00"
     },
     {
       "name": "queue_info",
       "ok": true,
-      "detail": "message_count=2",
-      "timestamp": "2026-08-24T16:06:02.998772+00:00"
+      "detail": "message_count=4",
+      "timestamp": "2026-08-26T06:38:49.821526+00:00"
     },
     {
       "name": "exchange_bindings",
       "ok": true,
-      "detail": "bindings=['smoke_m4', 'stream_data']",
-      "timestamp": "2026-08-24T16:06:03.010659+00:00"
+      "detail": "bindings=['rest_ack_1787726302', 'rest_ack_1787726302__dlq', 'smoke_m4', 'stream_data', 'test_ack_1787716547']",
+      "timestamp": "2026-08-26T06:38:49.846353+00:00"
     },
     {
       "name": "statistics_endpoint",
       "ok": true,
-      "detail": "total_publish=1",
-      "timestamp": "2026-08-24T16:06:03.243190+00:00"
+      "detail": "total_publish=4",
+      "timestamp": "2026-08-26T06:38:50.126870+00:00"
     }
   ]
 }

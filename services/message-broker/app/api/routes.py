@@ -16,17 +16,25 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from app.broker import KafkaBackend, topic_for
 from app.core.config import settings
 from app.schemas import (
+    AckRequest,
+    AckResponse,
     ConfigReloadResponse,
     ConsumeRequest,
     ConsumeResponse,
     ConnectionsResponse,
     ExchangeInfoResponse,
+    FetchRequest,
+    FetchResponse,
     HealthResponse,
+    NackRequest,
+    NackResponse,
     PublishRequest,
     PublishResponse,
     QueueInfoResponse,
     StatisticsResponse,
     StatusResponse,
+    SubscribeRequest,
+    SubscribeResponse,
 )
 from app.services.broker_service import BrokerConfigService
 
@@ -168,6 +176,96 @@ async def consume(request: ConsumeRequest, backend: KafkaBackend = Depends(get_b
 
 
 # ------------------------------------------------------------------
+# SAS-07 consumer workflow: subscribe -> receive -> acknowledge
+# ------------------------------------------------------------------
+
+
+@router.post("/api/v1/subscribe", response_model=SubscribeResponse)
+async def subscribe(payload: SubscribeRequest, backend: KafkaBackend = Depends(get_backend)):
+    """Register a persistent consumer group on a queue."""
+    try:
+        prefetch = int(get_config_service().runtime_config.get("prefetch_count", payload.prefetch_count))
+        await backend.subscribe(
+            queue=payload.queue,
+            group_id=payload.group_id,
+            prefetch_count=prefetch,
+        )
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=f"Subscribe failed: {exc}")
+    return SubscribeResponse(subscribed=True, queue=payload.queue, group_id=payload.group_id)
+
+
+@router.post("/api/v1/fetch", response_model=FetchResponse)
+async def fetch(request: FetchRequest, backend: KafkaBackend = Depends(get_backend)):
+    """Receive messages without committing offsets — each carries a delivery_tag."""
+    try:
+        messages = await backend.fetch(
+            queue=request.queue,
+            group_id=request.group_id,
+            max_messages=request.max_messages,
+            timeout_ms=request.timeout_ms,
+        )
+    except KeyError as exc:
+        raise HTTPException(status_code=409, detail=str(exc))
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=f"Fetch failed: {exc}")
+    return FetchResponse(
+        queue=request.queue,
+        group_id=request.group_id,
+        messages=messages,
+        count=len(messages),
+    )
+
+
+@router.post("/api/v1/ack", response_model=AckResponse)
+async def ack(request: AckRequest, backend: KafkaBackend = Depends(get_backend)):
+    """Acknowledgement — commit the offset of a delivered message."""
+    try:
+        result = await backend.ack(
+            queue=request.queue,
+            group_id=request.group_id,
+            delivery_tag=request.delivery_tag,
+        )
+    except (KeyError, ValueError) as exc:
+        raise HTTPException(status_code=409, detail=str(exc))
+    return AckResponse(acknowledged=True, delivery_tag=result["delivery_tag"])
+
+
+@router.post("/api/v1/nack", response_model=NackResponse)
+async def nack(request: NackRequest, backend: KafkaBackend = Depends(get_backend)):
+    """Negative acknowledgement — requeue for redelivery or route to the DLQ."""
+    try:
+        result = await backend.nack(
+            queue=request.queue,
+            group_id=request.group_id,
+            delivery_tag=request.delivery_tag,
+            requeue=request.requeue,
+            reason=request.reason,
+        )
+    except (KeyError, ValueError) as exc:
+        raise HTTPException(status_code=409, detail=str(exc))
+    return NackResponse(
+        nacked=True,
+        delivery_tag=result["delivery_tag"],
+        requeued=result["requeued"],
+        dlq_topic=result.get("dlq_topic"),
+    )
+
+
+@router.delete("/api/v1/subscription", response_model=dict)
+async def unsubscribe(
+    queue: str = Query(...),
+    group_id: str = Query(...),
+    backend: KafkaBackend = Depends(get_backend),
+):
+    """Drop a consumer subscription."""
+    removed = await backend.unsubscribe(queue, group_id)
+    if not removed:
+        raise HTTPException(status_code=404, detail=f"No subscription for queue='{queue}' group='{group_id}'")
+    return {"unsubscribed": True, "queue": queue, "group_id": group_id}
+
+
+# ------------------------------------------------------------------
 # Monitoring endpoints (SAS-07 sections 13-14)
 # ------------------------------------------------------------------
 
@@ -203,7 +301,7 @@ async def exchange_info(exchange_name: str, backend: KafkaBackend = Depends(get_
 async def connections(backend: KafkaBackend = Depends(get_backend)):
     return ConnectionsResponse(
         active_publishers=1 if backend.connected else 0,
-        active_consumers=0,
+        active_consumers=await backend.active_consumer_count(),
         kafka_bootstrap=backend.bootstrap_servers,
         kafka_connected=backend.connected,
     )

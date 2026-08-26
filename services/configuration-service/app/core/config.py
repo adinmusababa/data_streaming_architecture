@@ -71,13 +71,12 @@ class Settings(BaseSettings):
             },
             "message-broker": {
                 "host": "localhost",
-                "port": 5672,
-                "username": "guest",
-                "password": "guest",
+                "port": 9092,
                 "exchange": "stream_exchange",
                 "queue": "stream_queue",
-                "routing_key": "stream.data",
+                "routing_key": "stream_data",
                 "prefetch_count": 100,
+                "retry_count": 3,
             },
             "online-ml-engine": {
                 "model_name": "river_hoeffding_tree",

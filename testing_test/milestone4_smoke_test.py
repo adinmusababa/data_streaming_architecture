@@ -81,11 +81,9 @@ required_paths = {
 }
 if app is not None:
     try:
-        schema_paths = set()
-        for route in app.routes:
-            path = getattr(route, "path", None)
-            if path:
-                schema_paths.add(path)
+        # FastAPI >= 0.121 wraps routers lazily (_IncludedRouter), so scan the
+        # resolved OpenAPI schema instead of app.routes.
+        schema_paths = set(app.openapi()["paths"])
         missing = {p for p in required_paths if p not in schema_paths}
         if missing:
             record("routes_registered", False, f"missing: {sorted(missing)}")

@@ -132,7 +132,7 @@ class KafkaBackend:
     async def _stop_unlocked(self) -> None:
         for consumer in self._consumers.values():
             try:
-                await consumer.stop()
+                await asyncio.wait_for(consumer.stop(), timeout=5.0)
             except Exception:
                 pass
         self._consumers.clear()
@@ -229,35 +229,45 @@ class KafkaBackend:
 
         # Ephemeral group per request so partitions get assigned immediately;
         # offsets are never committed, so reads stay non-destructive.
+        # getmany() instead of `async for` — the iterator form ignores
+        # consumer_timeout_ms and can hang on quiet topics.
         consumer = AIOKafkaConsumer(
             queue,
             bootstrap_servers=self.bootstrap_servers,
             auto_offset_reset="earliest",
             enable_auto_commit=False,
-            consumer_timeout_ms=max(timeout_ms, 100),
-            metadata_max_age_ms=1_000,
             group_id=f"broker-peek-{uuid.uuid4().hex[:8]}",
             value_deserializer=_deserialize,
         )
         messages: list[dict[str, Any]] = []
         try:
             await consumer.start()
-            async for msg in consumer:
-                payload = msg.value
-                if isinstance(payload, dict):
-                    payload["_meta"] = {
-                        "topic": msg.topic,
-                        "partition": msg.partition,
-                        "offset": msg.offset,
-                    }
-                messages.append(payload)
-                self.stats.record_consume()
-                if len(messages) >= max_messages:
+            while len(messages) < max_messages:
+                batch = await consumer.getmany(
+                    timeout_ms=max(timeout_ms, 100),
+                    max_records=max_messages - len(messages),
+                )
+                if not batch:
                     break
+                for _tps, records in batch.items():
+                    for msg in records:
+                        payload = msg.value
+                        if isinstance(payload, dict):
+                            payload["_meta"] = {
+                                "topic": msg.topic,
+                                "partition": msg.partition,
+                                "offset": msg.offset,
+                            }
+                        messages.append(payload)
+                        self.stats.record_consume()
+                        if len(messages) >= max_messages:
+                            break
+                    if len(messages) >= max_messages:
+                        break
         finally:
             try:
-                await consumer.stop()
-            except asyncio.CancelledError:
+                await asyncio.wait_for(consumer.stop(), timeout=5.0)
+            except Exception:
                 pass
         return messages
 
@@ -292,6 +302,12 @@ class KafkaBackend:
         )
         try:
             await consumer.start()
+            # Force metadata + partition assignment now so the first fetch
+            # does not return empty while the group is still rebalancing.
+            for _ in range(20):
+                if consumer.assignment():
+                    break
+                await asyncio.sleep(0.1)
         except Exception:
             try:
                 await consumer.stop()
@@ -299,7 +315,12 @@ class KafkaBackend:
                 pass
             raise
         self._consumers[key] = consumer
-        logger.info("Consumer subscribed", queue=queue, group=group_id)
+        logger.info(
+            "Consumer subscribed",
+            queue=queue,
+            group=group_id,
+            partitions=sorted(str(tp) for tp in consumer.assignment()),
+        )
 
     def _get_consumer(self, queue: str, group_id: str) -> AIOKafkaConsumer:
         consumer = self._consumers.get((queue, group_id))
@@ -329,7 +350,7 @@ class KafkaBackend:
             max_records=max(max_messages, 1),
         )
         messages: list[dict[str, Any]] = []
-        for tps, records in batch.items():
+        for _tps, records in batch.items():
             for msg in records:
                 payload = msg.value if isinstance(msg.value, dict) else {"value": msg.value}
                 payload["_delivery"] = {
@@ -374,7 +395,7 @@ class KafkaBackend:
         topic, partition_s, offset_s = delivery_tag.split(":")
         partition, offset = int(partition_s), int(offset_s)
         consumer = self._get_consumer(queue, group_id)
-        next_offset = offset + 1
+        tp = self._tp(topic, partition)
 
         if not requeue:
             payload = await self._read_raw(topic, partition, offset)
@@ -387,8 +408,11 @@ class KafkaBackend:
             }}
             await self.publish_to(dlq_topic_for(queue), dead_letter)
 
-        consumer.seek(self._tp(topic, partition), next_offset)
-        await consumer.commit({self._tp(topic, partition): next_offset})
+        # requeue=True rewinds to the same offset so the group redelivers it;
+        # dead-lettering commits past the failed message.
+        resume_offset = offset if requeue else offset + 1
+        consumer.seek(tp, resume_offset)
+        await consumer.commit({tp: resume_offset})
         result = {"nacked": True, "delivery_tag": delivery_tag, "requeued": requeue}
         if not requeue:
             result["dlq_topic"] = dlq_topic_for(queue)
@@ -443,7 +467,7 @@ class KafkaBackend:
         if consumer is None:
             return False
         try:
-            await consumer.stop()
+            await asyncio.wait_for(consumer.stop(), timeout=5.0)
         except Exception:
             pass
         logger.info("Consumer unsubscribed", queue=queue, group=group_id)
