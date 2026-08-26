@@ -538,6 +538,6 @@ Fitur berikut direncanakan untuk pengembangan selanjutnya.
 
 Dokumen berikutnya:
 
-07-Message-Broker.md
+06-Message-Broker.md
 
 Dokumen ini menjelaskan konfigurasi Message Broker, struktur komunikasi publish-subscribe, manajemen queue, serta integrasi dengan Streaming Preprocessing Service dan Online ML Engine.

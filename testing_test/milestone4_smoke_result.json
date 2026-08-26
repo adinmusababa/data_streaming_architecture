@@ -1,0 +1,80 @@
+{
+  "milestone": 4,
+  "date": "2026-08-24T16:06:03.245467+00:00",
+  "passed": 10,
+  "failed": 2,
+  "results": [
+    {
+      "name": "import_kafka_backend",
+      "ok": true,
+      "detail": "topic_for('stream_exchange','stream_data')=stream_exchange__stream_data",
+      "timestamp": "2026-08-24T16:05:29.850218+00:00"
+    },
+    {
+      "name": "import_broker_service",
+      "ok": true,
+      "detail": "BrokerConfigService imported ok",
+      "timestamp": "2026-08-24T16:05:29.931437+00:00"
+    },
+    {
+      "name": "import_broker_schemas",
+      "ok": true,
+      "detail": "Broker schemas imported ok",
+      "timestamp": "2026-08-24T16:05:29.940549+00:00"
+    },
+    {
+      "name": "import_app",
+      "ok": true,
+      "detail": "app title=ASLP Message Broker Service",
+      "timestamp": "2026-08-24T16:05:30.311327+00:00"
+    },
+    {
+      "name": "routes_registered",
+      "ok": false,
+      "detail": "missing: ['/api/v1/consume', '/api/v1/exchange/{exchange_name}', '/api/v1/publish', '/api/v1/queue/{queue_name}', '/config/reload', '/connections', '/health', '/statistics', '/status']",
+      "timestamp": "2026-08-24T16:05:30.311327+00:00"
+    },
+    {
+      "name": "health_endpoint",
+      "ok": true,
+      "detail": "status=200 kafka=connected",
+      "timestamp": "2026-08-24T16:05:31.053045+00:00"
+    },
+    {
+      "name": "status_endpoint",
+      "ok": true,
+      "detail": "published=0 consumed=0",
+      "timestamp": "2026-08-24T16:05:31.065411+00:00"
+    },
+    {
+      "name": "publish_rest_contract",
+      "ok": true,
+      "detail": "queue=stream_exchange__smoke_m4 offset=1",
+      "timestamp": "2026-08-24T16:05:31.140922+00:00"
+    },
+    {
+      "name": "consume_returns_message",
+      "ok": false,
+      "detail": "ReadTimeout('')",
+      "timestamp": "2026-08-24T16:06:02.184435+00:00"
+    },
+    {
+      "name": "queue_info",
+      "ok": true,
+      "detail": "message_count=2",
+      "timestamp": "2026-08-24T16:06:02.998772+00:00"
+    },
+    {
+      "name": "exchange_bindings",
+      "ok": true,
+      "detail": "bindings=['smoke_m4', 'stream_data']",
+      "timestamp": "2026-08-24T16:06:03.010659+00:00"
+    },
+    {
+      "name": "statistics_endpoint",
+      "ok": true,
+      "detail": "total_publish=1",
+      "timestamp": "2026-08-24T16:06:03.243190+00:00"
+    }
+  ]
+}
